@@ -1,0 +1,373 @@
+/* 웹폰트: Pretendard (한글 가독성 최적화, variable). Noto Sans KR로 폴백 가능. */
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =========================================================================
+   디자인 토큰 (CSS 변수)
+   - tailwind.config.js의 색상 스케일과 동기화된 값
+   - 컴포넌트/유틸리티에서 var(--token)으로 참조 가능
+   ========================================================================= */
+@layer base {
+  :root {
+    /* Brand */
+    --color-primary: 214 84 55; /* #d65437 */
+    --color-primary-strong: 162 49 35; /* #a23123 */
+    --color-secondary: 156 107 72; /* #9c6b48 */
+    --color-accent: 245 158 11; /* #f59e0b */
+
+    /* Surface / Background */
+    --color-bg: 250 249 247; /* neutral-50 */
+    --color-surface: 255 255 255;
+    --color-surface-muted: 243 241 236; /* neutral-100 */
+    --color-border: 231 227 218; /* neutral-200 */
+
+    /* Text */
+    --color-text: 42 38 32; /* neutral-900 */
+    --color-text-muted: 118 109 94; /* neutral-600 */
+    --color-text-subtle: 146 136 118; /* neutral-500 */
+    --color-text-on-primary: 255 255 255;
+
+    /* Semantic */
+    --color-success: 34 197 94;
+    --color-warning: 245 158 11;
+    --color-error: 239 68 68;
+    --color-info: 20 184 166;
+
+    /* 주문 상태 (pending/preparing/completed) — 앱 OrderStatus와 매핑 */
+    --status-pending: 100 116 139; /* slate-500 */
+    --status-pending-soft: 241 245 249; /* slate-100 */
+    --status-pending-fg: 51 65 85; /* slate-700 */
+    --status-preparing: 245 158 11; /* amber-500 */
+    --status-preparing-soft: 254 243 199; /* amber-100 */
+    --status-preparing-fg: 146 64 14; /* amber-800 */
+    --status-completed: 34 197 94; /* green-500 */
+    --status-completed-soft: 220 252 231; /* green-100 */
+    --status-completed-fg: 22 101 52; /* green-800 */
+
+    /* Radius / Layout */
+    --radius-card: 0.875rem;
+    --radius-control: 0.625rem;
+
+    /* Min touch target (접근성: 최소 44px) */
+    --touch-min: 2.75rem;
+  }
+
+  * {
+    border-color: rgb(var(--color-border));
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background-color: rgb(var(--color-bg));
+    color: rgb(var(--color-text));
+    font-family: theme("fontFamily.sans");
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    line-height: 1.5;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    color: rgb(var(--color-text));
+    font-weight: 700;
+    line-height: 1.25;
+    text-wrap: balance;
+  }
+
+  /* 접근성: 키보드 포커스 가시성 */
+  :focus-visible {
+    outline: 2px solid rgb(var(--color-primary));
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* 커스텀 스크롤바 (따뜻한 톤) */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--color-border)) transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  *::-webkit-scrollbar-thumb {
+    background-color: rgb(var(--color-border));
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(var(--color-text-subtle));
+    background-clip: content-box;
+  }
+
+  /* 모션 감소 선호 사용자 존중 */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* =========================================================================
+   재사용 컴포넌트 클래스
+   - 컴포넌트 .tsx 에서 className="btn-primary" 형태로 사용
+   ========================================================================= */
+@layer components {
+  /* ---------- Buttons ---------- */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 select-none
+           min-h-touch px-5 py-2.5 rounded-control
+           text-base font-semibold leading-none
+           transition-all duration-200 ease-out-soft
+           focus-visible:outline-none focus:shadow-focus
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none
+           active:scale-[0.98];
+  }
+  .btn-primary {
+    @apply btn bg-primary-500 text-white shadow-sm
+           hover:bg-primary-600 active:bg-primary-700;
+  }
+  .btn-secondary {
+    @apply btn bg-secondary-500 text-white shadow-sm
+           hover:bg-secondary-600 active:bg-secondary-700;
+  }
+  .btn-accent {
+    @apply btn bg-accent-500 text-neutral-950 shadow-sm
+           hover:bg-accent-600 active:bg-accent-700;
+  }
+  .btn-outline {
+    @apply btn bg-transparent border border-neutral-300 text-neutral-800
+           hover:bg-neutral-100 hover:border-neutral-400 active:bg-neutral-200;
+  }
+  .btn-ghost {
+    @apply btn bg-transparent text-neutral-700
+           hover:bg-neutral-100 active:bg-neutral-200;
+  }
+  .btn-danger {
+    @apply btn bg-error-500 text-white shadow-sm
+           hover:bg-error-600 active:bg-error-700;
+  }
+  /* 사이즈 변형 */
+  .btn-sm {
+    @apply min-h-touch px-3.5 py-2 text-sm rounded-md;
+  }
+  .btn-lg {
+    @apply min-h-touch-lg px-6 py-3 text-lg;
+  }
+  .btn-xl {
+    @apply min-h-touch-xl px-8 py-4 text-xl rounded-lg; /* 키오스크 CTA */
+  }
+  .btn-block {
+    @apply w-full;
+  }
+
+  /* ---------- Cards ---------- */
+  .card {
+    @apply bg-white rounded-card shadow-card border border-neutral-200/70
+           p-5 transition-shadow duration-200;
+  }
+  .card-interactive {
+    @apply card cursor-pointer hover:shadow-card-hover
+           active:scale-[0.99] focus-visible:outline-none focus:shadow-focus;
+  }
+  .card-header {
+    @apply flex items-center justify-between gap-3 mb-3 pb-3 border-b border-neutral-200/70;
+  }
+  .card-title {
+    @apply text-lg font-bold text-neutral-900;
+  }
+
+  /* 메뉴 아이템 카드 (고객용 태블릿) */
+  .menu-card {
+    @apply card-interactive p-0 overflow-hidden flex flex-col;
+  }
+  .menu-card-body {
+    @apply p-4 flex flex-col gap-1;
+  }
+
+  /* 통계/KPI 카드 (관리자 대시보드) */
+  .stat-card {
+    @apply card flex flex-col gap-1;
+  }
+  .stat-card-label {
+    @apply text-sm font-medium text-neutral-500;
+  }
+  .stat-card-value {
+    @apply text-3xl font-extrabold text-neutral-900 tabular-nums;
+  }
+
+  /* ---------- Badges / Status ---------- */
+  .badge {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full
+           text-xs font-semibold leading-none whitespace-nowrap;
+  }
+  .badge-neutral {
+    @apply badge bg-neutral-100 text-neutral-700;
+  }
+  .badge-primary {
+    @apply badge bg-primary-100 text-primary-700;
+  }
+  .badge-accent {
+    @apply badge bg-accent-100 text-accent-800;
+  }
+
+  /* 주문 상태 배지 — badge-status 변형 */
+  .badge-status {
+    @apply badge;
+  }
+  .badge-status-new {
+    @apply badge-status bg-accent-100 text-accent-800 ring-1 ring-accent-300;
+  }
+  .badge-status-pending {
+    @apply badge-status bg-neutral-100 text-neutral-700;
+  }
+  .badge-status-cooking {
+    @apply badge-status bg-info-100 text-info-700;
+  }
+  .badge-status-ready {
+    @apply badge-status bg-warning-100 text-warning-700;
+  }
+  .badge-status-served,
+  .badge-status-completed {
+    @apply badge-status bg-success-100 text-success-700;
+  }
+  .badge-status-cancelled {
+    @apply badge-status bg-error-100 text-error-700;
+  }
+
+  /* 상태 점(dot) 인디케이터 */
+  .status-dot {
+    @apply inline-block w-2 h-2 rounded-full;
+  }
+
+  /* ── 앱 OrderStatus 정식 매핑 (pending/preparing/completed) ──
+     색맹 안전: 색상 + 텍스트 라벨 + dot 모양을 함께 사용하도록 설계.
+     컴포넌트(StatusBadge 등)에서 className으로 그대로 채택 가능. */
+  .badge-pending {
+    @apply badge bg-status-pending-100 text-status-pending-fg ring-1 ring-status-pending-200;
+  }
+  .badge-preparing {
+    @apply badge bg-status-preparing-100 text-status-preparing-fg ring-1 ring-status-preparing-200;
+  }
+  .badge-completed {
+    @apply badge bg-status-completed-100 text-status-completed-fg ring-1 ring-status-completed-200;
+  }
+  .dot-pending {
+    @apply status-dot bg-status-pending-500;
+  }
+  .dot-preparing {
+    @apply status-dot bg-status-preparing-500;
+  }
+  .dot-completed {
+    @apply status-dot bg-status-completed-500;
+  }
+
+  /* ---------- Forms ---------- */
+  .input {
+    @apply block w-full min-h-touch px-3.5 py-2.5 rounded-control
+           bg-white border border-neutral-300 text-neutral-900
+           placeholder:text-neutral-400
+           transition-colors duration-150
+           focus:outline-none focus:border-primary-400 focus:shadow-focus
+           disabled:bg-neutral-100 disabled:cursor-not-allowed;
+  }
+  .textarea {
+    @apply input min-h-[6rem] py-2.5 resize-y;
+  }
+  .select {
+    @apply input pr-10 appearance-none bg-no-repeat;
+  }
+  .label {
+    @apply block mb-1.5 text-sm font-semibold text-neutral-700;
+  }
+  .form-hint {
+    @apply mt-1 text-xs text-neutral-500;
+  }
+  .form-error {
+    @apply mt-1 text-xs font-medium text-error-600;
+  }
+
+  /* ---------- Quantity stepper (수량 조절) ---------- */
+  .qty-stepper {
+    @apply inline-flex items-center rounded-control border border-neutral-300 overflow-hidden;
+  }
+  .qty-btn {
+    @apply flex items-center justify-center min-w-touch min-h-touch
+           text-xl font-bold text-neutral-700 bg-white
+           hover:bg-neutral-100 active:bg-neutral-200
+           disabled:opacity-40 disabled:pointer-events-none transition-colors;
+  }
+  .qty-value {
+    @apply min-w-[2.5rem] text-center text-base font-semibold tabular-nums;
+  }
+
+  /* ---------- Layout helpers ---------- */
+  .app-container {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+  .page-section {
+    @apply animate-fade-in;
+  }
+  .divider {
+    @apply h-px w-full bg-neutral-200 my-4;
+  }
+
+  /* 신규 주문 강조 래퍼 (관리자) */
+  .order-highlight {
+    @apply animate-pulse-highlight ring-2 ring-accent-400 rounded-card;
+  }
+
+  /* 스켈레톤 로딩 */
+  .skeleton {
+    @apply rounded-md bg-gradient-to-r from-neutral-200 via-neutral-100 to-neutral-200
+           bg-[length:200%_100%] animate-shimmer;
+  }
+}
+
+/* =========================================================================
+   유틸리티 확장
+   ========================================================================= */
+@layer utilities {
+  /* 텍스트 줄임 (메뉴 설명 등) */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  /* 가로 스크롤 시 스크롤바 숨김 (카테고리 탭 등) */
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+  /* 안전 영역 (태블릿/모바일 노치 대응) */
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}

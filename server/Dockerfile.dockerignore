@@ -1,0 +1,30 @@
+# BuildKit per-Dockerfile ignore.
+# 빌드 컨텍스트가 리포 루트일 때 (`docker build -f server/Dockerfile .`)
+# Docker BuildKit 은 이 파일(server/Dockerfile.dockerignore)을 우선 적용합니다.
+# 루트 .dockerignore 를 추가하지 않고 server/ 범위만으로 무시 규칙을 적용하기 위함.
+
+# 의존성 / 빌드 산출물
+server/node_modules
+server/dist
+**/node_modules
+**/dist
+
+# 환경 파일 (시크릿은 런타임 환경변수로 주입)
+server/.env
+server/.env.*
+!server/.env.example
+
+# 클라이언트는 서버 이미지에 불필요
+client
+
+# 테스트 / 로그
+**/coverage
+**/*.log
+
+# 에디터 / OS / VCS
+.vscode
+.idea
+.DS_Store
+.git
+.gitignore
+aidlc-docs

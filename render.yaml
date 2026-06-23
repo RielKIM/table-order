@@ -1,0 +1,96 @@
+# Render Blueprint - 테이블오더 (Table Order)
+# 모노레포(npm workspaces): server(Express + PostgreSQL + SSE) + client(React + Vite SPA)
+# Blueprint 스펙: https://render.com/docs/blueprint-spec
+# IDE 검증 스키마: https://render.com/schema/render.yaml.json
+
+databases:
+  # PostgreSQL (free plan) - 모든 Unit이 공유하는 단일 데이터베이스
+  - name: table-order-db
+    databaseName: table_order
+    user: table_order
+    plan: free
+    region: singapore
+    postgresMajorVersion: "15"
+
+services:
+  # ───────────────────────────────────────────────────────────────
+  # Server API  ·  Web Service (상시 실행)
+  # SSE(Server-Sent Events)를 사용하므로 serverless가 아닌
+  # 상시 실행 Web Service로 배포한다. (자세한 이유는 DEPLOYMENT.md 참고)
+  # ───────────────────────────────────────────────────────────────
+  - type: web
+    name: table-order-server
+    runtime: node
+    plan: free
+    region: singapore
+    rootDir: .
+    healthCheckPath: /api/health
+    autoDeployTrigger: commit
+    # 모노레포 루트에서 의존성 설치 후 server 워크스페이스만 빌드
+    buildCommand: npm install && npm run build:server
+    # 배포 직전(preDeploy) 마이그레이션 + 시드 실행
+    # knexfile.ts는 development/test 환경 설정만 보유하므로 NODE_ENV를 override 한다
+    preDeployCommand: NODE_ENV=development npm run migrate:latest --workspace=server && NODE_ENV=development npm run seed:run --workspace=server
+    startCommand: npm run start --workspace=server
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # DB 연결 문자열. server의 env.ts는 DATABASE_URL을 인식하며,
+      # 실제 연결(database.ts/knexfile.ts)의 DATABASE_URL 파싱 지원은 예정 항목이다.
+      - key: DATABASE_URL
+        fromDatabase:
+          name: table-order-db
+          property: connectionString
+      # 개별 DB 변수도 함께 노출 (DATABASE_URL 미사용 코드 경로 대비)
+      - key: DB_USER
+        fromDatabase:
+          name: table-order-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: table-order-db
+          property: password
+      - key: DB_NAME
+        fromDatabase:
+          name: table-order-db
+          property: database
+      # JWT 시크릿: Render가 256-bit 무작위 값 자동 생성
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_ADMIN_EXPIRES_IN
+        value: 16h
+      # CORS 허용 출처 = Client Static Site의 공개 URL
+      # 주의: fromService의 host/port는 비공개 네트워크 전용이라 브라우저 출처(https 공개 URL)로
+      #       사용할 수 없다. 그래서 예측 가능한 onrender.com 공개 URL을 직접 지정한다.
+      #       서비스명이 중복되어 접미사가 붙으면 이 값을 실제 URL로 갱신해야 한다.
+      - key: ALLOWED_ORIGINS
+        value: https://table-order-client.onrender.com
+
+  # ───────────────────────────────────────────────────────────────
+  # Client SPA  ·  Static Site
+  # Customer(/) 와 Admin(/admin)을 포함하는 단일 React + Vite SPA.
+  # 빌드 산출물(client/dist)을 정적 서빙하고, SPA 라우팅을 위해
+  # 모든 경로를 index.html로 rewrite 한다.
+  # ───────────────────────────────────────────────────────────────
+  - type: web
+    name: table-order-client
+    runtime: static
+    rootDir: .
+    autoDeployTrigger: commit
+    # 모노레포 루트에서 의존성 설치 후 client 워크스페이스만 빌드
+    buildCommand: npm install && npm run build:client
+    staticPublishPath: client/dist
+    envVars:
+      # 백엔드 API 공개 URL (Vite 빌드 타임에 정적 주입됨)
+      # fromService로는 비공개 host/port만 얻을 수 있어 공개 URL을 직접 지정한다.
+      - key: VITE_API_URL
+        value: https://table-order-server.onrender.com
+    routes:
+      # SPA fallback: 정적 파일이 없는 모든 경로를 index.html로 rewrite
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: SAMEORIGIN

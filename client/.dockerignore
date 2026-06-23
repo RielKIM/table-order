@@ -1,0 +1,23 @@
+node_modules
+dist
+build
+coverage
+
+# VCS / IDE
+.git
+.gitignore
+.vscode
+.idea
+
+# 환경 파일 (빌드 ARG 로 주입)
+.env
+.env.*
+
+# 로그/임시
+*.log
+npm-debug.log*
+.DS_Store
+
+# Docker 자체
+Dockerfile
+.dockerignore

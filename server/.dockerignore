@@ -1,0 +1,22 @@
+# 의존성 / 빌드 산출물 (이미지 내부에서 재설치/재빌드)
+node_modules
+dist
+
+# 환경 파일 (시크릿은 런타임 환경변수로 주입)
+.env
+.env.*
+!.env.example
+
+# 테스트 / 개발 아티팩트
+coverage
+*.log
+npm-debug.log*
+
+# 에디터 / OS
+.vscode
+.idea
+.DS_Store
+
+# 버전관리
+.git
+.gitignore
