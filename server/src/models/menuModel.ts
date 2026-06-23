@@ -82,11 +82,11 @@ export const MenuModel = {
   },
 
   async maxDisplayOrder(category: string): Promise<number> {
-    const result = await db<MenuRow>('menus')
+    const result = await db('menus')
       .where({ category })
-      .max('display_order as max')
+      .max<{ max: number | null }>('display_order as max')
       .first();
-    return (result?.max as number) ?? 0;
+    return result?.max ?? 0;
   },
 
   async update(id: number, input: UpdateMenuInput): Promise<Menu | null> {

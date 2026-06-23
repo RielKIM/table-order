@@ -49,7 +49,8 @@ export const OrderHistoryModel = {
       table_number: input.tableNumber,
       status: input.status,
       total_amount: input.totalAmount,
-      items_snapshot: JSON.stringify(input.itemsSnapshot),
+      // jsonb 컬럼: 문자열로 직렬화하여 저장 (타입은 OrderItem[]이므로 캐스팅)
+      items_snapshot: JSON.stringify(input.itemsSnapshot) as unknown as OrderItem[],
       created_at: input.createdAt,
       completed_at: input.completedAt,
     });
